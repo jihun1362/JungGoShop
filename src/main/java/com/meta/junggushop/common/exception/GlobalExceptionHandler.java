@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static com.meta.junggushop.common.message.ErrorCode.INTERNAL_SERVER_ERROR;
-import static com.meta.junggushop.common.message.ErrorCode.INVALID_EMAIL_PATTERN;
-import static com.meta.junggushop.common.message.ErrorCode.INVALID_PASSWORD_PATTERN;
+import static com.meta.junggushop.common.message.ErrorCode.INVALID_EMAIL_PATTERN_ERROR;
+import static com.meta.junggushop.common.message.ErrorCode.INVALID_PASSWORD_PATTERN_ERROR;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -21,16 +21,16 @@ public class GlobalExceptionHandler {
         return new ResponseDto<>(ex.getErrorCode(), ex.getErrorCode());
     }
 
-    //Vaildation 예외처리
+    //Validation 예외처리
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseDto<ErrorCode> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
 
         for (FieldError error : result.getFieldErrors()) {
             if (error.getField().equals("email")) {
-                return new ResponseDto<>(INVALID_EMAIL_PATTERN, INVALID_EMAIL_PATTERN);
+                return new ResponseDto<>(INVALID_EMAIL_PATTERN_ERROR, INVALID_EMAIL_PATTERN_ERROR);
             } else {
-                return new ResponseDto<>(INVALID_PASSWORD_PATTERN, INVALID_PASSWORD_PATTERN);
+                return new ResponseDto<>(INVALID_PASSWORD_PATTERN_ERROR, INVALID_PASSWORD_PATTERN_ERROR);
             }
         }
         return new ResponseDto<>(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);

@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.meta.junggushop.common.message.ErrorCode.TOKEN_ERROR;
-import static com.meta.junggushop.common.message.ErrorCode.USER_NOT_FOUND;
+import static com.meta.junggushop.common.message.ErrorCode.USER_NOT_FOUND_ERROR;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class  JwtAuthFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.setContext(context);
         } catch (UsernameNotFoundException e) {
-            jwtExceptionHandler(response, USER_NOT_FOUND);
+            jwtExceptionHandler(response, USER_NOT_FOUND_ERROR);
         }
     }
 
