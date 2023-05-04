@@ -1,11 +1,14 @@
 package com.meta.junggushop.member.entity;
 
 import com.meta.junggushop.common.TimeStamped;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,9 +30,19 @@ public class Member extends TimeStamped {
     @Column(nullable = false)
     private String nickname;
 
-    @Column
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
+
+    @Builder
+    public Member(String email, String password, String nickname, String address, UserRoleEnum role) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.address = address;
+        this.role = role;
+    }
 }

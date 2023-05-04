@@ -2,7 +2,8 @@ package com.meta.junggushop.common.exception;
 
 import com.meta.junggushop.common.dto.ResponseDto;
 import com.meta.junggushop.common.message.ErrorCode;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,33 +12,46 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static com.meta.junggushop.common.message.ErrorCode.INTERNAL_SERVER_ERROR;
 import static com.meta.junggushop.common.message.ErrorCode.INVALID_EMAIL_PATTERN_ERROR;
+import static com.meta.junggushop.common.message.ErrorCode.INVALID_NICKNAME_PATTERN;
 import static com.meta.junggushop.common.message.ErrorCode.INVALID_PASSWORD_PATTERN_ERROR;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+
     @ExceptionHandler({CustomException.class})
-    public ResponseDto<ErrorCode> handleCustomException(CustomException ex) {
-        return new ResponseDto<>(ex.getErrorCode(), ex.getErrorCode());
+    public ResponseEntity<ResponseDto<ErrorCode>> handleCustomException(CustomException ex) {
+        log.warn("CustomException occur: ", ex);
+        return errorResponseEntity(ex.getErrorCode());
     }
 
     //Validation 예외처리
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseDto<ErrorCode> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseDto<ErrorCode>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
+        log.warn("MethodArgumentNotValidException occur: ", ex);
 
+        ErrorCode errorCode = null;
         for (FieldError error : result.getFieldErrors()) {
             if (error.getField().equals("email")) {
-                return new ResponseDto<>(INVALID_EMAIL_PATTERN_ERROR, INVALID_EMAIL_PATTERN_ERROR);
-            } else {
-                return new ResponseDto<>(INVALID_PASSWORD_PATTERN_ERROR, INVALID_PASSWORD_PATTERN_ERROR);
-            }
+                errorCode=INVALID_EMAIL_PATTERN_ERROR; break;
+            } else if (error.getField().equals("password")) {
+                errorCode=INVALID_PASSWORD_PATTERN_ERROR; break;
+            } else
+                errorCode=INVALID_NICKNAME_PATTERN; break;
         }
-        return new ResponseDto<>(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR);
+        return errorResponseEntity(errorCode);
     }
 
     @ExceptionHandler({Exception.class})
-    public ResponseDto<HttpStatus> handleServerException(Exception e) {
-        return new ResponseDto<>(INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ResponseDto<ErrorCode>> handleServerException(Exception ex) {
+        log.warn("Exception occur: ", ex);
+        return errorResponseEntity(INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<ResponseDto<ErrorCode>> errorResponseEntity(ErrorCode errorCode) {
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(new ResponseDto<>(errorCode, errorCode));
     }
 }

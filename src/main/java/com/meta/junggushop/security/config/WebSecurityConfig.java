@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                 // JWT 인증/인가를 사용하기 위해 JwtAuthFilter 적용
                 .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // 이 설정을 해주지 않으면 밑의 corsConfigurationSource가 적용되지 않습니다!
-                .headers().frameOptions().disable()
+                .headers().frameOptions().sameOrigin()
                 .and().cors();
 
         http.exceptionHandling()

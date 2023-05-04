@@ -89,38 +89,65 @@ compileQuerydsl { //쿼리DSL추가 빌드
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-}
 jacoco {
     toolVersion = "0.8.8"
     reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
 }
 jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
     reports {
         xml.required = false
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
     }
+    def Qdomains = []
+    for (qPattern in '**/QA'..'**/QZ') {
+        Qdomains.add(qPattern + '*')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: [
+                            "**/*Application*",
+                            "**/*Config*",
+                            "**/*Dto*",
+                            "**/*Request*",
+                            "**/*Response*",
+                            "**/*Interceptor*",
+                            "**/*Exception*"
+                    ] + Qdomains)
+                })
+        )
+    }
+    finalizedBy 'jacocoTestCoverageVerification'
 }
 jacocoTestCoverageVerification {
+    def Qdomains = []
+    for (qPattern in '*.QA'..'*.QZ') {
+        Qdomains.add(qPattern + '*')
+    }
+
     violationRules {
         rule {
-            limit {
-                minimum = 0.6//커버리지 퍼센트
-            }
-        }
-
-        rule {
-            enabled = false
+            enabled = true
             element = 'CLASS'
-            includes = ['org.gradle.*']
 
             limit {
                 counter = 'LINE'
-                value = 'TOTALCOUNT'
-                maximum = 0.3
+                value = 'COVEREDRATIO'
+                minimum = 0.70
             }
+
+            excludes = [
+                    "**.*Application*",
+                    "**.*Config*",
+                    "**.*Dto*",
+                    "**.*Request*",
+                    "**.*Response*",
+                    "**.*Interceptor*",
+                    "**.*Exception*"
+            ] + Qdomains
         }
     }
 }
