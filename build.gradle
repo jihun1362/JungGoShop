@@ -86,6 +86,8 @@ compileQuerydsl { //쿼리DSL추가 빌드
 }
 
 // jacoco 테스트 커버리지
+//jacoco 상세설명 ↓
+//https://velog.io/@lxxjn0/%EC%BD%94%EB%93%9C-%EB%B6%84%EC%84%9D-%EB%8F%84%EA%B5%AC-%EC%A0%81%EC%9A%A9%EA%B8%B0-2%ED%8E%B8-JaCoCo-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
@@ -122,6 +124,9 @@ jacocoTestReport {
     }
     finalizedBy 'jacocoTestCoverageVerification'
 }
+
+//jacocoTestCoverageVerification 내용 상세설명 ↓
+//https://velog.io/@lxxjn0/%EC%BD%94%EB%93%9C-%EB%B6%84%EC%84%9D-%EB%8F%84%EA%B5%AC-%EC%A0%81%EC%9A%A9%EA%B8%B0-2%ED%8E%B8-JaCoCo-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0
 jacocoTestCoverageVerification {
     def Qdomains = []
     for (qPattern in '*.QA'..'*.QZ') {
@@ -133,6 +138,13 @@ jacocoTestCoverageVerification {
             enabled = true
             element = 'CLASS'
 
+            /** value에 들어가는 코드
+             * COVEREDCOUNT : 커버된 개수
+             * COVEREDRATIO : 커버된 비율, 0부터 1사이의 숫자로 1이 100%이다.
+             * MISSEDCOUNT : 커버되지 않은 개수
+             * MISSEDRATIO : 커버되지 않은 비율, 0부터 1사이의 숫자로 1이 100%이다.
+             * TOTALCOUNT : 전체 개수
+             */
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
