@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({CustomException.class})
     public ResponseEntity<ResponseDto<ErrorCode>> handleCustomException(CustomException ex) {
+        log.info(String.valueOf(ex.getErrorCode()));
         log.warn("CustomException occur: ", ex);
         return errorResponseEntity(ex.getErrorCode());
     }
@@ -30,7 +31,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ResponseDto<ErrorCode>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
-        log.warn("MethodArgumentNotValidException occur: ", ex);
 
         ErrorCode errorCode = null;
         for (FieldError error : result.getFieldErrors()) {
@@ -38,14 +38,19 @@ public class GlobalExceptionHandler {
                 errorCode=INVALID_EMAIL_PATTERN_ERROR; break;
             } else if (error.getField().equals("password")) {
                 errorCode=INVALID_PASSWORD_PATTERN_ERROR; break;
-            } else
-                errorCode=INVALID_NICKNAME_PATTERN; break;
+            } else {
+                errorCode=INVALID_NICKNAME_PATTERN;
+            }
+            break;
         }
+        log.info(String.valueOf(errorCode));
+        log.warn("MethodArgumentNotValidException occur: ", ex);
         return errorResponseEntity(errorCode);
     }
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ResponseDto<ErrorCode>> handleServerException(Exception ex) {
+        log.info(String.valueOf(INTERNAL_SERVER_ERROR));
         log.warn("Exception occur: ", ex);
         return errorResponseEntity(INTERNAL_SERVER_ERROR);
     }
