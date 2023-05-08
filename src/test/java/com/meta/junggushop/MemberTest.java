@@ -1,6 +1,7 @@
 package com.meta.junggushop;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.meta.junggushop.member.dto.LoginRequestDtoTest;
 import com.meta.junggushop.member.dto.SignupRequestDtotest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MemberControllerTest {
+public class MemberTest {
 
     @Autowired
     ObjectMapper mapper;
@@ -122,22 +123,14 @@ public class MemberControllerTest {
     @DisplayName("회원가입 이메일, 닉네임 중복 테스트")
     void save_test3() throws Exception {
         //given
-        String email1 = "1jihun1362@nate.com";
+        String email1 = "jihun1362@nate.com";
         String email2 = "2jihun1362@nate.com";
         String password = "123qwe!@#";
-        String nickname1 = "지훈1";
+        String nickname1 = "지훈";
         String nickname2 = "지훈2";
         String address = "ㅁㄴㅇ";
 
         //when
-        String body1 = mapper.writeValueAsString(
-                SignupRequestDtotest.builder()
-                        .email(email1)
-                        .password(password)
-                        .nickname(nickname1)
-                        .address(address)
-                        .build()
-        );
         //이메일 중복 체크
         String body2 = mapper.writeValueAsString(
                 SignupRequestDtotest.builder()
@@ -158,19 +151,81 @@ public class MemberControllerTest {
         );
 
         //then
-        mvc.perform(post("/api/members/signup")
-                        .content(body1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                );
         //이메일 중복 체크
         mvc.perform(post("/api/members/signup")
-                .content(body2)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .content(body2)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
         //닉네임 중복 체크
         mvc.perform(post("/api/members/signup")
                         .content(body3)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("로그인 이메일 일치 실패 테스트")
+    void login_test1() throws Exception {
+        //given
+        String email1 = "1jihun1362@nate.com";
+        String password1 = "123qwe!@#";
+
+        //when
+        String body1 = mapper.writeValueAsString(
+                LoginRequestDtoTest.builder()
+                        .email(email1)
+                        .password(password1)
+                        .build()
+        );
+
+        //then
+        mvc.perform(post("/api/members/login")
+                        .content(body1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("로그인 비밀번호 실패 테스트")
+    void login_test2() throws Exception {
+        //given
+        String email1 = "jihun1362@nate.com";
+        String password1 = "123qwe!@#123";
+
+        //when
+        String body1 = mapper.writeValueAsString(
+                LoginRequestDtoTest.builder()
+                        .email(email1)
+                        .password(password1)
+                        .build()
+        );
+
+        //then
+        mvc.perform(post("/api/members/login")
+                        .content(body1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("로그인 성공 테스트")
+    void login_test3() throws Exception {
+        //given
+        String email1 = "jihun1362@nate.com";
+        String password1 = "123qwe!@#";
+
+        //when
+        String body1 = mapper.writeValueAsString(
+                LoginRequestDtoTest.builder()
+                        .email(email1)
+                        .password(password1)
+                        .build()
+        );
+
+        //then
+        mvc.perform(post("/api/members/login")
+                        .content(body1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
