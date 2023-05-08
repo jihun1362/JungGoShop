@@ -16,6 +16,9 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND_ERROR("존재하지 않는 이메일이거나 이메일이 올바르지 않습니다.",404),
     INCORRECT_PASSWORD_ERROR("비밀번호가 일치하지 않습니다.",404),
 
+    //멤버
+    ALREADY_PERMISSION_SELLER_ERROR("이미 허가된 회원입니다.",400),
+
     //필터부분 에러
     FORBIDDEN_ERROR("서버 사용 권한이 없습니다.", 403),
     TOKEN_ERROR("토큰이 유효하지 않습니다.", 401),

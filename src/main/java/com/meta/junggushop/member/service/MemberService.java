@@ -4,6 +4,7 @@ import com.meta.junggushop.common.exception.CustomException;
 import com.meta.junggushop.member.dto.LoginRequestDto;
 import com.meta.junggushop.member.dto.SignupRequestDto;
 import com.meta.junggushop.member.entity.Member;
+import com.meta.junggushop.member.entity.UserRoleEnum;
 import com.meta.junggushop.member.mapper.MemberMapper;
 import com.meta.junggushop.member.repository.MemberRepository;
 import com.meta.junggushop.security.jwt.JwtUtil;
@@ -15,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
+import static com.meta.junggushop.common.message.ErrorCode.ALREADY_PERMISSION_SELLER_ERROR;
 import static com.meta.junggushop.common.message.ErrorCode.DUPLICATE_EMAIL_ERROE;
 import static com.meta.junggushop.common.message.ErrorCode.DUPLICATE_NICKNAME_ERROE;
 import static com.meta.junggushop.common.message.ErrorCode.INCORRECT_PASSWORD_ERROR;
 import static com.meta.junggushop.common.message.ErrorCode.MEMBER_NOT_FOUND_ERROR;
+import static com.meta.junggushop.common.message.ErrorCode.USER_NOT_FOUND_ERROR;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +38,15 @@ public class MemberService {
 
         //이메일 중복 체크
         Optional<Member> emailDuplicateCheck = memberRepository.findByEmail(member.getEmail());
-        if (emailDuplicateCheck.isPresent()) throw new CustomException(DUPLICATE_EMAIL_ERROE);
+        if (emailDuplicateCheck.isPresent()) {
+            throw new CustomException(DUPLICATE_EMAIL_ERROE);
+        }
 
         // 닉네임 중복 확인
         Optional<Member> nicknameDuplicateCheck = memberRepository.findByNickname(member.getNickname());
-        if (nicknameDuplicateCheck.isPresent()) throw new CustomException(DUPLICATE_NICKNAME_ERROE);
+        if (nicknameDuplicateCheck.isPresent()) {
+            throw new CustomException(DUPLICATE_NICKNAME_ERROE);
+        }
 
         memberRepository.save(member);
     }
@@ -63,6 +70,21 @@ public class MemberService {
     public void checkEmail(String email) {
         //이메일 중복 체크
         Optional<Member> emailDuplicateCheck = memberRepository.findByEmail(email);
-        if (emailDuplicateCheck.isPresent()) throw new CustomException(DUPLICATE_EMAIL_ERROE);
+        if (emailDuplicateCheck.isPresent()) {
+            throw new CustomException(DUPLICATE_EMAIL_ERROE);
+        }
+    }
+
+    @Transactional
+    public void permitSeller(Member member) {
+        //판매자 권한이 이미 허가됬는지 체크
+        if (member.getRole().equals(UserRoleEnum.SELLER)) {
+            throw new CustomException(ALREADY_PERMISSION_SELLER_ERROR);
+        }
+
+        Member updateMember = memberRepository.findById(member.getId()).orElseThrow(
+                () -> new CustomException(USER_NOT_FOUND_ERROR)
+        );
+        updateMember.permitSeller();
     }
 }

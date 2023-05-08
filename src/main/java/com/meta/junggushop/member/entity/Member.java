@@ -45,4 +45,8 @@ public class Member extends TimeStamped {
         this.address = address;
         this.role = role;
     }
+
+    public void permitSeller(){
+        this.role = UserRoleEnum.SELLER;
+    }
 }
