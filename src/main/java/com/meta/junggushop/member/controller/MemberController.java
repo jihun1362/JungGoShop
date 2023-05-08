@@ -7,14 +7,17 @@ import com.meta.junggushop.member.dto.SignupRequestDto;
 import com.meta.junggushop.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import static com.meta.junggushop.common.message.ResultCode.EMAIL_CHECK_SUCCESS;
 import static com.meta.junggushop.common.message.ResultCode.MEMBER_LOGIN_SUCCESS;
 import static com.meta.junggushop.common.message.ResultCode.MEMBER_SIGNUP_SUCCESS;
 
@@ -36,5 +39,12 @@ public class MemberController {
         memberService.login(loginRequestDto, response);
         return ResponseEntity.status(200)
                 .body(new ResponseDto<>(MEMBER_LOGIN_SUCCESS, null));
+    }
+
+    @GetMapping("/signup/check")
+    public ResponseEntity<ResponseDto<ResultCode>> checkEmail(@RequestParam("email") String email) {
+        memberService.checkEmail(email);
+        return ResponseEntity.status(200)
+                .body(new ResponseDto<>(EMAIL_CHECK_SUCCESS, null));
     }
 }

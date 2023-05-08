@@ -13,7 +13,7 @@ public enum ErrorCode {
     INVALID_NICKNAME_PATTERN("닉네임은 영문(소문자), 숫자, 한글(자음, 모음 단위 x) 조합에 2~10자입니다.",400),
     DUPLICATE_EMAIL_ERROE("중복된 이메일이 존재합니다.", 400),
     DUPLICATE_NICKNAME_ERROE("중복된 닉네임이 존재합니다.", 400),
-    MEMBER_NOT_FOUND_ERROR("존재하지 않는 회원 입니다.",404),
+    MEMBER_NOT_FOUND_ERROR("존재하지 않는 이메일이거나 이메일이 올바르지 않습니다.",404),
     INCORRECT_PASSWORD_ERROR("비밀번호가 일치하지 않습니다.",404),
 
     //필터부분 에러

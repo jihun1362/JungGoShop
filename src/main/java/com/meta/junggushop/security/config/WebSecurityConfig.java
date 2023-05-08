@@ -53,7 +53,7 @@ public class WebSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // api 권한 허용정책 설정
         http.authorizeRequests()
-                .antMatchers(new String[]{"/api/members/signup", "/api/members/login"}).permitAll()
+                .antMatchers(new String[]{"/api/members/signup/**", "/api/members/login/**"}).permitAll()
                 .antMatchers(HttpMethod.GET, new String[]{"/api/products/detail", "/api/products/search"}).permitAll()
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위해 JwtAuthFilter 적용

@@ -46,6 +46,7 @@ public class MemberService {
 
     @Transactional
     public void login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        //멤버가 존재하는지 확인
         Member member = memberRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND_ERROR)
         );
@@ -56,5 +57,12 @@ public class MemberService {
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(member.getEmail(), member.getRole()));
+    }
+
+    @Transactional(readOnly = true)
+    public void checkEmail(String email) {
+        //이메일 중복 체크
+        Optional<Member> emailDuplicateCheck = memberRepository.findByEmail(email);
+        if (emailDuplicateCheck.isPresent()) throw new CustomException(DUPLICATE_EMAIL_ERROE);
     }
 }
