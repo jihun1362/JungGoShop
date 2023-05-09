@@ -4,18 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meta.junggushop.member.dto.LoginRequestDtoTest;
 import com.meta.junggushop.member.dto.SignupRequestDtotest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class MemberTest {
 
     @Autowired
@@ -25,8 +31,23 @@ public class MemberTest {
     MockMvc mvc;
 
     @Test
+    @DisplayName("이메일 체크 성공 테스트")
+    void A_emailCheckTest1() throws Exception {
+        //given
+
+
+        //when
+
+
+        //then
+        mvc.perform(get("/api/members/signup/check?email=jihun1362@nate.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("회원가입 성공 테스트")
-    void save_test1() throws Exception {
+    void B_signupTest1() throws Exception {
         //given
         String email = "jihun1362@nate.com";
         String password = "123qwe!@#";
@@ -55,8 +76,23 @@ public class MemberTest {
     }
 
     @Test
+    @DisplayName("이메일 체크 실패 테스트")
+    void C_emailCheckTest2() throws Exception {
+        //given
+
+
+        //when
+
+
+        //then
+        mvc.perform(get("/api/members/signup/check?email=jihun1362@nate.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("회원가입 전달값 유효성 테스트")
-    void save_test2() throws Exception {
+    void D_signupTest2() throws Exception {
         //given
         String email1 = "jihun1362@nate.com";
         String email2 = "jihun1362";
@@ -121,7 +157,7 @@ public class MemberTest {
 
     @Test
     @DisplayName("회원가입 이메일, 닉네임 중복 테스트")
-    void save_test3() throws Exception {
+    void E_signupTest3() throws Exception {
         //given
         String email1 = "jihun1362@nate.com";
         String email2 = "2jihun1362@nate.com";
@@ -165,7 +201,7 @@ public class MemberTest {
 
     @Test
     @DisplayName("로그인 이메일 일치 실패 테스트")
-    void login_test1() throws Exception {
+    void F_loginTest1() throws Exception {
         //given
         String email1 = "1jihun1362@nate.com";
         String password1 = "123qwe!@#";
@@ -187,7 +223,7 @@ public class MemberTest {
 
     @Test
     @DisplayName("로그인 비밀번호 실패 테스트")
-    void login_test2() throws Exception {
+    void G_loginTest2() throws Exception {
         //given
         String email1 = "jihun1362@nate.com";
         String password1 = "123qwe!@#123";
@@ -209,10 +245,11 @@ public class MemberTest {
 
     @Test
     @DisplayName("로그인 성공 테스트")
-    void login_test3() throws Exception {
+    void H_loginTest3() throws Exception {
         //given
         String email1 = "jihun1362@nate.com";
         String password1 = "123qwe!@#";
+
 
         //when
         String body1 = mapper.writeValueAsString(
@@ -223,9 +260,72 @@ public class MemberTest {
         );
 
         //then
-        mvc.perform(post("/api/members/login")
+        String token = mvc.perform(post("/api/members/login")
                         .content(body1)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.msg").value("로그인되었습니다."))
+                .andExpect(jsonPath("$.statusCode").value(200))
+                .andReturn().getResponse().getHeader("Authorization");
+    }
+
+    @Test
+    @DisplayName("판매자 권한 허가 성공 테스트")
+    void I_permitSellerTest1() throws Exception {
+        //given
+        String email1 = "jihun1362@nate.com";
+        String password1 = "123qwe!@#";
+
+
+        //when
+        String body1 = mapper.writeValueAsString(
+                LoginRequestDtoTest.builder()
+                        .email(email1)
+                        .password(password1)
+                        .build()
+        );
+
+        //then
+        String token = mvc.perform(post("/api/members/login")
+                        .content(body1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getHeader("Authorization");
+
+        mvc.perform(patch("/api/members/permission-request")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.msg").value("판매자 권한이 허가 되었습니다."))
+                .andExpect(jsonPath("$.statusCode").value(200));
+    }
+
+    @Test
+    @DisplayName("판매자 권한 허가 실패 테스트")
+    void J_permitSellerTest2() throws Exception {
+        //given
+        String email1 = "jihun1362@nate.com";
+        String password1 = "123qwe!@#";
+
+
+        //when
+        String body1 = mapper.writeValueAsString(
+                LoginRequestDtoTest.builder()
+                        .email(email1)
+                        .password(password1)
+                        .build()
+        );
+
+        //then
+        String token = mvc.perform(post("/api/members/login")
+                        .content(body1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getHeader("Authorization");
+
+        mvc.perform(patch("/api/members/permission-request")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.msg").value("이미 허가된 회원입니다."))
+                .andExpect(jsonPath("$.statusCode").value(400));
     }
 }
