@@ -24,12 +24,6 @@
 
 - 중고 물품 판매 사이트
 
-## **Use Case Diagram**
-
----
-
-![화면 캡처 2023-04-28 122318](https://user-images.githubusercontent.com/115356113/235553586-d1411bf0-894e-44c2-9126-da6fbc7d07ac.png)
-
 
 ## **기능 정리**
 
